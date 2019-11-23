@@ -1,12 +1,29 @@
-use std::env;
+use std::{
+    env,
+    fmt::{self, Debug, Formatter},
+};
 
-fn get_first_argument() -> Option<String> {
-    // this is silly
-    env::args().nth(1)
+enum MyError {
+    NoInput,
 }
 
-fn main() {
-    let caller = get_first_argument().unwrap_or("world".to_string());
+impl Debug for MyError {
+    fn fmt(&self, formatter: &mut Formatter) -> fmt::Result {
+        match self {
+            MyError::NoInput => write!(formatter, "Please provide a name for greeting"),
+        }
+    }
+}
+
+fn get_first_argument() -> Result<String, MyError> {
+    // this is silly
+    env::args().nth(1).ok_or(MyError::NoInput)
+}
+
+fn main() -> Result<(), MyError> {
+    let caller = get_first_argument()?;
 
     println!("Hello {}!", &caller);
+
+    Ok(())
 }
